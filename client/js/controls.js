@@ -822,10 +822,11 @@ geoapp.views.ControlsView = geoapp.View.extend({
             });
             params.source = params.msgsource;
             delete params.msgsource;
-            geoapp.dataLoaders.instagram.dataLoad({
-                params: params,
-                display: results.display
-            });
+	    // CRL
+            //geoapp.dataLoaders.instagram.dataLoad({
+            //    params: params,
+            //    display: results.display
+            //});
         }
         $.each(secs, function (sec) {
             if (sec === 'taxi' || sec === 'instagram') {
