@@ -371,6 +371,12 @@ geoapp.dataHandlers.taxi = function (arg) {
         geoapp.map.showMap(options.description, options.display);
     };
 
+    geoapp.events.on('ga:dataLoaded.' + m_datakey, function (params) {
+	console.log('trips dataLoaded:',params)
+	// some data has just come back for display.  Keep a private cache updated
+	// so the current cache can be exported when the user requests it
+	geoapp.exporting.addDataToCache(m_datakey,params)
+    });
     /* Load more taxi data or indicated that we are finished loading.
      *
      * @param options: the request options.
@@ -418,6 +424,14 @@ geoapp.dataHandlers.instagram = function (arg) {
         msg_date: 'posted_date',
         ingest_date: 'scraped_date'
     };
+
+    // Jan 2019 - catch data load events
+    geoapp.events.on('ga:dataLoaded.' + m_datakey, function (params) {
+	console.log('messages dataLoaded:',params)
+	// some data has just come back for display.  Keep a private cache updated
+	// so the current cache can be exported when the user requests it
+	geoapp.exporting.addDataToCache(m_datakey,params)
+    });
 
     geoapp.events.on('ga:dataVisibility.' + m_datakey, function (params) {
         /* This had been:
@@ -1313,7 +1327,7 @@ geoapp.addDataHandler = function (datainfo) {
 
 // for now (May 2016), remove the instagram data handler.  This should only
 // be added if needed.
-delete geoapp.dataHandlers.instagram;
+//delete geoapp.dataHandlers.instagram;
 
 /* The original class could be retired by replacing it with this:
 

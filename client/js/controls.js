@@ -18,6 +18,49 @@
 geoapp.defaults = geoapp.defaults || {};
 geoapp.defaults.tooltip = {delay: {show: 500}};
 
+/* added Jan 2019 for connection to D3M pipeline. Ability to push subsets
+ * of current displayed trips and messages out for downstream analysis. 
+ * We define a cache for data to be exported and event handles to send the 
+ * data when the user selects the export controls.
+ */
+
+// start with empty caches
+geoapp.exporting = {}
+geoapp.exporting.tripCache = {}
+geoapp.exporting.messageCache = {}
+
+geoapp.exporting.exportTrips = function () {
+  console.log('reached export trips')
+  console.log('exporting: ',geoapp.exporting.tripCache)
+};
+
+geoapp.exporting.exportMessages = function () {
+  console.log('reached export messages')
+  console.log('exporting: ',geoapp.exporting.messageCache)
+};
+
+// this callback is invoked when the user has requested new data and
+// it has come back from the server.  This cache stays 'hot' and always
+// remembers only the most recent exports.   These eventBlock payloads
+// can only be so large, so sometimes updates are split into chunks.  The
+// first implementation is keeping only the last block, so this doesn't 
+// handle multi-block storage.
+ 
+geoapp.exporting.addDataToCache = function (dataType,dataBlock) {
+  console.log('reached cache storage')
+
+  switch (dataType) {
+    case 'instagram':
+	geoapp.exporting.messageCache = dataBlock
+	console.log('saving message data');
+	break; 
+    case 'taxi':
+	geoapp.exporting.tripCache = dataBlock
+	console.log('saving trip  data');
+	break; 
+  }
+};
+
 /* Get a section from a settings dictionary, parsing it as a query string.  If
  * there are any default values for that section, and those defaults have not
  * been explicitly specified, use those defaults, too.
@@ -80,6 +123,14 @@ geoapp.views.ControlsView = geoapp.View.extend({
             } else {
                 this.animationAction('playpause');
             }
+        },
+        'click #ga-taxi-export': function () {
+            console.log("EXPORT taxi ...."); 
+	    geoapp.exporting.exportTrips()
+        },
+        'click #ga-instagram-export': function () {
+            console.log("EXPORT instagram ...."); 
+	    geoapp.exporting.exportMessages()
         },
         'click #ga-anim-step-back': function () {
             this.animationAction('stepback');
@@ -822,11 +873,10 @@ geoapp.views.ControlsView = geoapp.View.extend({
             });
             params.source = params.msgsource;
             delete params.msgsource;
-	    // CRL
-            //geoapp.dataLoaders.instagram.dataLoad({
-            //    params: params,
-            //    display: results.display
-            //});
+            geoapp.dataLoaders.instagram.dataLoad({
+                params: params,
+                display: results.display
+            });
         }
         $.each(secs, function (sec) {
             if (sec === 'taxi' || sec === 'instagram') {
