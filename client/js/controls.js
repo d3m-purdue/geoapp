@@ -32,7 +32,24 @@ geoapp.exporting.messageCache = {}
 geoapp.exporting.exportTrips = function () {
   console.log('reached export trips')
   console.log('exporting: ',geoapp.exporting.tripCache)
+  // call the REST endpoint
+  $.ajax({
+        type: 'POST',
+        url: girder_api_prefix+'/dataset/upload/'  
+        date: {
+            sort: JSON.stringify([['unixtime', -1]]),
+            limit: 1,
+            fields: JSON.stringify(['unixtime'])
+        },
+	data: JSON.stringify(geoapp.exporting.tripCache),
+        dataType: 'json',
+        success: function (response) {
+            console.log('successfully exported trips') 
+	}
+   });
+
 };
+
 
 geoapp.exporting.exportMessages = function () {
   console.log('reached export messages')
