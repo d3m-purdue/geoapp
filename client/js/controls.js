@@ -24,6 +24,7 @@ geoapp.defaults.tooltip = {delay: {show: 500}};
  * data when the user selects the export controls.
  */
 
+const girder_api_prefix='http://localhost:8080/api/v1'
 // start with empty caches
 geoapp.exporting = {}
 geoapp.exporting.tripCache = {}
@@ -31,18 +32,23 @@ geoapp.exporting.messageCache = {}
 
 geoapp.exporting.exportTrips = function () {
   console.log('reached export trips')
-  console.log('exporting: ',geoapp.exporting.tripCache)
+  //console.log('exporting: ',geoapp.exporting.tripCache.data)
+  dataAsString = JSON.stringify(geoapp.exporting.tripCache.data)	
+  //console.log(dataAsString)
+  var d = new Date();
+  var time = d.toISOString();
+  data = {
+       data: dataAsString, 
+       name: 'geoapp_'+time+'.csv',
+       size: dataAsString.length, 
+       dataType: 'geospatial_trips' 
+   };
+
   // call the REST endpoint
   $.ajax({
         type: 'POST',
-        url: girder_api_prefix+'/dataset/upload/'  
-        date: {
-            sort: JSON.stringify([['unixtime', -1]]),
-            limit: 1,
-            fields: JSON.stringify(['unixtime'])
-        },
-	data: JSON.stringify(geoapp.exporting.tripCache),
-        dataType: 'json',
+        url: girder_api_prefix+'/modsquad/dataset/upload/' ,
+	data: data,
         success: function (response) {
             console.log('successfully exported trips') 
 	}
@@ -54,6 +60,28 @@ geoapp.exporting.exportTrips = function () {
 geoapp.exporting.exportMessages = function () {
   console.log('reached export messages')
   console.log('exporting: ',geoapp.exporting.messageCache)
+
+ dataAsString = JSON.stringify(geoapp.exporting.messageCache.data)
+  //console.log(dataAsString)
+  var d = new Date();
+  var time = d.toISOString();
+  data = {
+       data: dataAsString,
+       name: 'geoapp_'+time+'.csv',
+       size: dataAsString.length,  
+       dataType: 'geospatial_messages' 
+   };
+
+  // call the REST endpoint
+  $.ajax({
+        type: 'POST',
+        url: girder_api_prefix+'/modsquad/dataset/upload/' ,
+        data: data,
+        success: function (response) {
+            console.log('successfully exported messages')
+        }
+   });
+
 };
 
 // this callback is invoked when the user has requested new data and
